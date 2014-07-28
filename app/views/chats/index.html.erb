@@ -1,0 +1,38 @@
+<h1>Listing chats</h1>
+
+<!-- コメントフォーム -->
+名前：<input id="name" type="text" style="width:90px;" value="<%= @name %>">
+コメント：<input id="comment" type="text" style="width:300px;">
+<input id="send" type="button" value="send">
+
+<!-- チャット表示部分 -->
+<ul id="chat_area">
+</ul>
+
+<script>
+  var ws_rails = new WebSocketRails("<%= Settings.websocket.host %>:<%= Settings.websocket.port %>/websocket");
+  // メッセージ受信時の処理
+  ws_rails.bind("websocket_chat", function(json) {
+    set_new_comment(json);
+    get_and_view_comment();
+  })
+
+  // メッセージ送信時の処理
+  document.getElementById("send").onclick =  function(){
+    var name = $("#name").val();
+    var comment = $("#comment").val();
+    $("#comment").val("");
+    var obj = JSON.stringify({
+      name: name,
+      comment : comment,
+      created_at : new Date()
+    });
+    ws_rails.trigger("websocket_chat", obj);
+    $.ajax({
+      type: "GET",
+      url: "chats/new.json",
+      data: {name : $("#name").val()}
+    });
+  }
+</script>
+

@@ -1,0 +1,6 @@
+websocket:
+  host: localhost
+  port: 13331
+redis:
+  host: localhost
+  port: 6379
