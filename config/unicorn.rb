@@ -1,41 +1,44 @@
-@app_path = '/home/akano/rails/websocket'
+# -*- coding: utf-8 -*-
+worker_processes Integer(ENV["WEB_CONCURRENCY"] || 3) # 子プロセスいくつ立ち上げるか
+timeout 15 #15秒Railsが反応しなければWorkerをkillしてタイムアウト
+preload_app true #後述
 
-worker_processes 2
-working_directory "#{@app_path}/"
+# 同一マシンでNginxとプロキシ組むならsocketのが高速ぽい(後述ベンチ)
+# listen /path/to/rails/tmp/unicorn.sock
+listen 3000
 
-# This loads the application in the master process before forking
-# worker processes
-# Read more about it here:
-# http://unicorn.bogomips.org/Unicorn/Configurator.html
-preload_app true
+# pid file path Capistranoとか使う時は要設定か
+# pid /path/to/rails/tmp/pids/unicorn.pid
 
-timeout 30
-
-# This is where we specify the socket.
-# We will point the upstream Nginx module to this socket later on
-listen "/tmp/unicorn.sock", :backlog => 64
-
-pid "/tmp/unicorn.pid"
-
-# Set the path of the log files inside the log folder of the testapp
-stderr_path "#{@app_path}/log/unicorn.stderr.log"
-stdout_path "#{@app_path}/log/unicorn.stdout.log"
+# ログの設定方法.
+#stderr_path File.expand_path('log/unicorn.log', ENV['RAILS_ROOT'])
+#stdout_path File.expand_path('log/unicorn.log', ENV['RAILS_ROOT'])
 
 before_fork do |server, worker|
-  defined?(ActiveRecord::Base) and ActiveRecord::Base.connection.disconnect!
-
-  old_pid = "#{server.config[:pid]}.oldbin"
-    if old_pid != server.pid
-      begin
-        sig = (worker.nr + 1) >= server.worker_processes ? :QUIT : :TTOU
-        Process.kill(sig, File.read(old_pid).to_i)
-      rescue Errno::ENOENT, Errno::ESRCH
-      end
+  old_pid = "#{ server.config[:pid] }.oldbin"
+  if File.exists?(old_pid) && server.pid != old_pid
+    begin
+      # 古いマスターがいたら死んでもらう
+      Process.kill("QUIT", File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+      # someone else did our job for us
     end
-
-    sleep 1
   end
 
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.connection.disconnect!
+end
+
 after_fork do |server, worker|
-  defined?(ActiveRecord::Base) and ActiveRecord::Base.establish_connection
+  Signal.trap 'TERM' do
+    puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to send QUIT'
+  end
+
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.establish_connection
+end
+
+def rails_root
+  require "pathname"
+  Pathname.new(__FILE__) + "../../"
 end
