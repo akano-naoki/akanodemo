@@ -3,16 +3,29 @@ worker_processes Integer(ENV["WEB_CONCURRENCY"] || 3) # 子プロセスいくつ
 timeout 15 #15秒Railsが反応しなければWorkerをkillしてタイムアウト
 preload_app true #後述
 
-# 同一マシンでNginxとプロキシ組むならsocketのが高速ぽい(後述ベンチ)
-# listen /path/to/rails/tmp/unicorn.sock
-listen 3000
+application = 'akanodemo'
 
-# pid file path Capistranoとか使う時は要設定か
-# pid /path/to/rails/tmp/pids/unicorn.pid
+listen "/tmp/unicorn_#{application}.sock"
+pid "/tmp/unicorn_#{application}.pid"
 
-# ログの設定方法.
-#stderr_path File.expand_path('log/unicorn.log', ENV['RAILS_ROOT'])
-#stdout_path File.expand_path('log/unicorn.log', ENV['RAILS_ROOT'])
+worker_processes 6
+preload_app true
+
+# capistrano 用に RAILS_ROOT を指定
+working_directory "/var/www/#{application}"
+
+if ENV['RAILS_ENV'] == 'production'
+  shared_path = "/var/www/#{application}/shared"
+  stderr_path = "#{shared_path}/log/unicorn.stderr.log"
+  stdout_path = "#{shared_path}/log/unicorn.stdout.log"
+end
+
+# ログ
+stderr_path File.expand_path('log/unicorn.log', ENV['RAILS_ROOT'])
+stdout_path File.expand_path('log/unicorn.log', ENV['RAILS_ROOT'])
+
+# ダウンタイムなくす
+preload_app true
 
 before_fork do |server, worker|
   old_pid = "#{ server.config[:pid] }.oldbin"
