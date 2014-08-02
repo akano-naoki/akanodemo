@@ -3,4 +3,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-Websocket::Application.load_tasks
+Akanodemo::Application.load_tasks
