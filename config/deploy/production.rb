@@ -1,45 +1,37 @@
-# Simple Role Syntax
-# ==================
-# Supports bulk-adding hosts to roles, the primary server in each group
-# is considered to be the first unless any hosts have the primary
-# property set.  Don't declare `role :all`, it's a meta role.
+# coding: utf-8
 
-role :app, %w{deploy@example.com}
-role :web, %w{deploy@example.com}
-role :db,  %w{deploy@example.com}
+app_path = '/var/www/akanodemo'
+app_shared_path = "#{app_path}/shared"
 
+worker_processes 5
 
-# Extended Server Syntax
-# ======================
-# This can be used to drop a more detailed server definition into the
-# server list. The second argument is a, or duck-types, Hash and is
-# used to set extended properties on the server.
+# 実態は symlink。
+# SIGUSR2 を送った時にこの symlink に対して
+# Unicorn のインスタンスが立ち上がる
+working_directory "#{app_path}/current/"
 
-server 'example.com', user: 'deploy', roles: %w{web app}, my_property: :my_value
+listen "#{app_shared_path}/tmp/sockets/unicorn.sock"
 
+stdout_path "#{app_shared_path}/log/unicorn.stdout.log"
+stderr_path "#{app_shared_path}/log/unicorn.stderr.log"
 
-# Custom SSH Options
-# ==================
-# You may pass any option but keep in mind that net/ssh understands a
-# limited set of options, consult[net/ssh documentation](http://net-ssh.github.io/net-ssh/classes/Net/SSH.html#method-c-start).
-#
-# Global options
-# --------------
-#  set :ssh_options, {
-#    keys: %w(/home/rlisowski/.ssh/id_rsa),
-#    forward_agent: false,
-#    auth_methods: %w(password)
-#  }
-#
-# And/or per server (overrides global)
-# ------------------------------------
-# server 'example.com',
-#   user: 'user_name',
-#   roles: %w{web app},
-#   ssh_options: {
-#     user: 'user_name', # overrides user setting above
-#     keys: %w(/home/user_name/.ssh/id_rsa),
-#     forward_agent: false,
-#     auth_methods: %w(publickey password)
-#     # password: 'please use keys'
-#   }
+pid "#{app_shared_path}/tmp/pids/unicorn.pid"
+
+# ダウンタイムをなくす
+preload_app true
+
+before_fork do |server, worker|
+  defined?(ActiveRecord::Base) and ActiveRecord::Base.connection.disconnect!
+
+  old_pid = "#{ server.config[:pid] }.oldbin"
+  unless old_pid == server.pid
+    begin
+      Process.kill :QUIT, File.read(old_pid).to_i
+    rescue Errno::ENOENT, Errno::ESRCH
+    end
+  end
+end
+
+after_fork do |server, worker|
+  defined?(ActiveRecord::Base) and ActiveRecord::Base.establish_connection
+end
