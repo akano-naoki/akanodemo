@@ -1,48 +1,56 @@
 namespace :unicorn do
-  ##
-  # Tasks
-
-  desc "Start unicorn"
-  task(:start) {
-    config = rails_root + "config/unicorn.rb"
-    env = ENV['RAILS_ENV'] || "development"
-    sh "bundle exec unicorn_rails -D -c #{config} -E #{env}"
-  }
-
-  desc "Stop unicorn"
-  task(:stop) { unicorn_signal :QUIT }
-
-  desc "Restart unicorn with USR2"
-  task(:restart) { unicorn_signal :USR2 }
-
-  desc "Increment number of worker processes"
-  task(:increment) { unicorn_signal :TTIN }
-
-  desc "Decrement number of worker processes"
-  task(:decrement) { unicorn_signal :TTOU }
-
-  desc "Unicorn pstree (depends on pstree command)"
-  task(:pstree) do
-    sh "pstree '#{unicorn_pid}'"
+  task :environment do
+    set :unicorn_pid, "#{shared_path}/tmp/pids/unicorn.pid"
+    set :unicorn_config, "#{current_path}/config/unicorn/#{fetch(:rails_env)}.rb"
   end
 
-  ##
-  # Helpers
-
-  def unicorn_signal signal
-    Process.kill signal, unicorn_pid
-  end
-
-  def unicorn_pid
-    begin
-      File.read(rails_root + "tmp/pids/unicorn.pid").to_i
-    rescue Errno::ENOENT
-      raise "Unicorn doesn't seem to be running"
+  def start_unicorn
+    within current_path do
+      execute :bundle, :exec, :unicorn, "-c #{fetch(:unicorn_config)} -E #{fetch(:rails_env)} -D"
     end
   end
 
-  def rails_root
-    require "pathname"
-    Pathname.new(__FILE__) + "../../../"
+  def stop_unicorn
+    execute :kill, "-s QUIT $(< #{fetch(:unicorn_pid)})"
+  end
+
+  def reload_unicorn
+    execute :kill, "-s USR2 $(< #{fetch(:unicorn_pid)})"
+  end
+
+  def force_stop_unicorn
+    execute :kill, "$(< #{fetch(:unicorn_pid)})"
+  end
+
+  desc "Start unicorn server"
+  task :start => :environment do
+    on roles(:app) do
+      start_unicorn
+    end
+  end
+
+  desc "Stop unicorn server gracefully"
+  task :stop => :environment do
+    on roles(:app) do
+      stop_unicorn
+    end
+  end
+
+  desc "Restart unicorn server gracefully"
+  task :restart => :environment do
+    on roles(:app) do
+      if test("[ -f #{fetch(:unicorn_pid)} ]")
+        reload_unicorn
+      else
+        start_unicorn
+      end
+    end
+  end
+
+  desc "Stop unicorn server immediately"
+  task :force_stop => :environment do
+    on roles(:app) do
+      force_stop_unicorn
+    end
   end
 end
