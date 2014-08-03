@@ -1,5 +1,5 @@
 websocket:
-  host: localhost
+  host: 54.92.70.139
   port: 3001
 redis:
   host: localhost
