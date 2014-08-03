@@ -64,7 +64,7 @@ gem 'tweetstream'
 # Use Heroku
 gem 'rails_12factor'
 group :production do
-  gem 'pg', '0.17.1'
+#  gem 'pg', '0.17.1'
 end
 group :development, :test do
   gem 'sqlite3'

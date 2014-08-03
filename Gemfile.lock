@@ -160,7 +160,6 @@ GEM
     net-ssh (2.9.1)
     optionable (0.2.0)
     origin (2.1.1)
-    pg (0.17.1)
     polyglot (0.3.5)
     pry (0.10.0)
       coderay (~> 1.1.0)
@@ -329,7 +328,6 @@ DEPENDENCIES
   mongoid (= 4.0.0.alpha2)
   moped
   origin
-  pg (= 0.17.1)
   rails (= 4.0.0)
   rails_12factor
   rails_config
