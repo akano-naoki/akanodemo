@@ -2,13 +2,12 @@ namespace :unicorn do
   task :environment do
     set :unicorn_pid, "/var/www/akano/shared/tmp/pids/unicorn.pid"
     set :unicorn_config, "#{current_path}/config/unicorn/#{fetch(:rails_env)}.rb"
+    set :unicorn_port, "8080"
   end
 
   def start_unicorn
-puts "aaaaa"
     within current_path do
-puts fetch(:unicorn_config)
-      execute :bundle, :exec, :unicorn, "-c #{fetch(:unicorn_config)} -E #{fetch(:rails_env)} -D"
+      execute :bundle, :exec, :unicorn, "-P #{fetch(:unicorn_port) -c #{fetch(:unicorn_config)} -E #{fetch(:rails_env)} -D"
     end
   end
 
@@ -41,7 +40,7 @@ puts fetch(:unicorn_config)
   desc "Restart unicorn server gracefully"
   task :restart => :environment do
     on roles(:app) do
-      if test("[ -f #{fetch(:unicorn_pid)} ]")
+      if test("[ -f /var/www/akano/shared/tmp/pids/unicorn.pid ]")
         reload_unicorn
       else
         start_unicorn
