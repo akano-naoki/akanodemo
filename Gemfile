@@ -48,6 +48,7 @@ gem 'origin'
 gem 'moped'
 
 # Use Websocket
+gem "eventmachine"
 gem "websocket-rails"
 gem "em-websocket"
 
