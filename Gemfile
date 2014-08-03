@@ -89,7 +89,7 @@ end
 gem 'rails_config'
 gem 'figaro'
 
-gem 'dotenv-deployment', :github => "bkeepers/dotenv-deployment"
+#gem 'dotenv-deployment', :github => "bkeepers/dotenv-deployment"
 
 gem 'unicorn'
 

@@ -1,10 +1,4 @@
 GIT
-  remote: git://github.com/bkeepers/dotenv-deployment.git
-  revision: 0696090d7a0b0b8e9c4c7c61f0a7092f7e3ac9b4
-  specs:
-    dotenv-deployment (0.0.2)
-
-GIT
   remote: git://github.com/eventmachine/eventmachine.git
   revision: b7f2b34d6b8d04aa8fdb017059833b64c602d819
   branch: master
@@ -324,7 +318,6 @@ DEPENDENCIES
   capistrano-rbenv
   capistrano3-unicorn
   coffee-rails (~> 4.0.0)
-  dotenv-deployment!
   em-websocket
   eventmachine!
   execjs
