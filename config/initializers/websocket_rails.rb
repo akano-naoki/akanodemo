@@ -67,4 +67,7 @@ WebsocketRails.setup do |config|
   # List here the origin domains allowed to perform the request.
   # config.allowed_origins = ['http://localhost:3000']
 
+  config.thin_options = {
+    :pid => "/var/www/akanodemo/shared/tmp/pids/websocket_rails.pid"
+  }
 end
