@@ -76,10 +76,6 @@ GEM
     cookiejar (0.3.2)
     daemons (1.1.9)
     diff-lcs (1.2.5)
-    dotenv (0.11.1)
-      dotenv-deployment (~> 0.0.2)
-    dotenv-rails (0.11.1)
-      dotenv (= 0.11.1)
     em-http-request (1.1.2)
       addressable (>= 2.3.4)
       cookiejar
@@ -329,7 +325,6 @@ DEPENDENCIES
   capistrano3-unicorn
   coffee-rails (~> 4.0.0)
   dotenv-deployment!
-  dotenv-rails
   em-websocket
   eventmachine!
   execjs
