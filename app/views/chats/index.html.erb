@@ -10,6 +10,7 @@
 </ul>
 
 <script>
+prev_name = $("#name").val();
   var ws_rails = new WebSocketRails("<%= Settings.websocket.host %>:<%= Settings.websocket.port %>/websocket");
   // メッセージ受信時の処理
   ws_rails.bind("websocket_chat", function(json) {
@@ -28,11 +29,14 @@
       created_at : new Date()
     });
     ws_rails.trigger("websocket_chat", obj);
-    $.ajax({
-      type: "GET",
-      url: "chats/new.json",
-      data: {name : $("#name").val()}
-    });
+    if (prev_name != $("#name").val()) {
+      prev_name = $("#name").val();
+      $.ajax({
+        type: "GET",
+        url: "chats/new.json",
+        data: {name : $("#name").val()}
+      });
+    }
   }
 </script>
 
