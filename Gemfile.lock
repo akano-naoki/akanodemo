@@ -1,4 +1,10 @@
 GIT
+  remote: git://github.com/bkeepers/dotenv-deployment.git
+  revision: 0696090d7a0b0b8e9c4c7c61f0a7092f7e3ac9b4
+  specs:
+    dotenv-deployment (0.0.2)
+
+GIT
   remote: git://github.com/eventmachine/eventmachine.git
   revision: b7f2b34d6b8d04aa8fdb017059833b64c602d819
   branch: master
@@ -72,7 +78,6 @@ GEM
     diff-lcs (1.2.5)
     dotenv (0.11.1)
       dotenv-deployment (~> 0.0.2)
-    dotenv-deployment (0.0.2)
     dotenv-rails (0.11.1)
       dotenv (= 0.11.1)
     em-http-request (1.1.2)
@@ -323,6 +328,7 @@ DEPENDENCIES
   capistrano-rbenv
   capistrano3-unicorn
   coffee-rails (~> 4.0.0)
+  dotenv-deployment!
   dotenv-rails
   em-websocket
   eventmachine!

@@ -10,20 +10,22 @@ namespace :websocket_rails do
   end
 
   def stop_websocket_rails
-    if test("[ -f #{fetch(:websocket_rails_pid)} ]")
-      execute :bundle, :exec, :rake, "websocket_rails:stop_server"
+    within current_path do
+      execute :bundle, :exec, :rake, "websocket_rails:stop_server" if test("[ -f #{fetch(:websocket_rails_pid)} ]")
     end
   end
 
   def reload_websocket_rails
-    if test("[ -f #{fetch(:websocket_rails_pid)} ]")
-      execute :bundle, :exec, :rake, "websocket_rails:stop_server"
+    within current_path do
+      execute :bundle, :exec, :rake, "websocket_rails:stop_server" if test("[ -f #{fetch(:websocket_rails_pid)} ]")
+      execute :bundle, :exec, :rake, "websocket_rails:start_server"
     end
-    execute :bundle, :exec, :rake, "websocket_rails:start_server"
   end
 
   def force_stop_websocket_rails
-    execute :bundle, :exec, :rake, "websocket_rails:stop_server"
+    within current_path do
+      execute :bundle, :exec, :rake, "websocket_rails:stop_server"
+    end
   end
 
   desc "Start websocket_rails server"

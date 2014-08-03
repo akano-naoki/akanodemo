@@ -6,6 +6,7 @@ set :scm, :git
 set :repo_url, 'https://github.com/erosroad/akanodemo.git'
 set :deploy_to, '/var/www/akanodemo'
 set :branch, 'master'
+set :linked_files, %w{.env}
 
 set :ssh_options, {
   keys: [File.expand_path('~/.ssh/id_rsa')],
@@ -18,7 +19,7 @@ namespace :deploy do
   desc 'Restart application'
   task :restart do
     invoke 'unicorn:restart'
-#    invoke 'websocket_rails:restart'
+    invoke 'websocket_rails:restart'
   end
 
   after :publishing, :restart
