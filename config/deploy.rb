@@ -18,6 +18,7 @@ namespace :deploy do
   desc 'Restart application'
   task :restart do
     invoke 'unicorn:restart'
+#    invoke 'websocket_rails:restart'
   end
 
   after :publishing, :restart

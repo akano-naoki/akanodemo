@@ -1,0 +1,56 @@
+namespace :websocket_rails do
+  task :environment do
+    set :websocket_rails_pid, "#{shared_path}/tmp/pids/websocket_rails.pid"
+  end
+
+  def start_websocket_rails
+    within current_path do
+      execute :bundle, :exec, :rake, "websocket_rails:start_server"
+    end
+  end
+
+  def stop_websocket_rails
+    if test("[ -f #{fetch(:websocket_rails_pid)} ]")
+      execute :bundle, :exec, :rake, "websocket_rails:stop_server"
+    end
+  end
+
+  def reload_websocket_rails
+    if test("[ -f #{fetch(:websocket_rails_pid)} ]")
+      execute :bundle, :exec, :rake, "websocket_rails:stop_server"
+    end
+    execute :bundle, :exec, :rake, "websocket_rails:start_server"
+  end
+
+  def force_stop_websocket_rails
+    execute :bundle, :exec, :rake, "websocket_rails:stop_server"
+  end
+
+  desc "Start websocket_rails server"
+  task :start => :environment do
+    on roles(:app) do
+      start_websocket_rails
+    end
+  end
+
+  desc "Stop websocket_rails server gracefully"
+  task :stop => :environment do
+    on roles(:app) do
+      stop_websocket_rails
+    end
+  end
+
+  desc "Restart websocket_rails server gracefully"
+  task :restart => :environment do
+    on roles(:app) do
+      reload_websocket_rails
+    end
+  end
+
+  desc "Stop websocket_rails server immediately"
+  task :force_stop => :environment do
+    on roles(:app) do
+      force_stop_websocket_rails
+    end
+  end
+end
